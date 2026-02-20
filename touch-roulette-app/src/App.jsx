@@ -1,34 +1,44 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { useEffect, useState } from "react";
 import "./App.css";
+import HomeScreen from "./components/HomeScreen.jsx";
+import SettingsScreen from "./components/SettingsScreen.jsx";
+import RouletteScreen from "./components/RouletteScreen.jsx";
 
 function App() {
-	const [count, setCount] = useState(0);
+	const [screen, setScreen] = useState("home"); // home | settings | roulette
+	const [mode, setMode] = useState("classic"); // classic | team | pairs
+
+	useEffect(() => {
+		const saved = localStorage.getItem("tr.mode");
+		if (saved) setMode(saved);
+	}, []);
+
+	const goHome = () => setScreen("home");
+	const goSettings = () => setScreen("settings");
+	const startRoulette = () => {
+		console.log("Starting roulette with mode:", mode);
+		setScreen("roulette");
+	};
 
 	return (
-		<>
-			<div>
-				<a href="https://vite.dev" target="_blank">
-					<img src={viteLogo} className="logo" alt="Vite logo" />
-				</a>
-				<a href="https://react.dev" target="_blank">
-					<img src={reactLogo} className="logo react" alt="React logo" />
-				</a>
-			</div>
-			<h1>Touch Roulette</h1>
-			<div className="card">
-				<button onClick={() => setCount((count) => count + 1)}>
-					count is {count}
-				</button>
-				<p>
-					Edit <code>src/App.jsx</code> and save to test HMR
-				</p>
-			</div>
-			<p className="read-the-docs">
-				Click on the Vite and React logos to learn more
-			</p>
-		</>
+		<div className="app-root">
+			{screen === "home" && (
+				<HomeScreen onStart={startRoulette} onSettings={goSettings} />
+			)}
+
+			{screen === "settings" && (
+				<SettingsScreen
+					mode={mode}
+					onChangeMode={(m) => {
+						setMode(m);
+						localStorage.setItem("tr.mode", m);
+					}}
+					onBack={goHome}
+				/>
+			)}
+
+			{screen === "roulette" && <RouletteScreen mode={mode} onBack={goHome} />}
+		</div>
 	);
 }
 
